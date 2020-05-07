@@ -9,9 +9,9 @@
 -- Allow us to use real types in the type constraints.
 {-# LANGUAGE FlexibleContexts #-}
 
-module Graphics.Implicit.Export (writeObject, formatObject, writeSVG, writeSTL, writeBinSTL, writeOBJ, writeTHREEJS, writeGCodeHacklabLaser, writeDXF2, writeSCAD2, writeSCAD3, writePNG) where
+module Graphics.Implicit.Export (writeObject, formatObject, writeSVG, writeSVGs, writeSTL, writeBinSTL, writeOBJ, writeTHREEJS, writeGCodeHacklabLaser, writeDXF2, writeSCAD2, writeSCAD3, writePNG) where
 
-import Prelude (FilePath, IO, (.), ($))
+import Prelude (FilePath, IO, (.), ($), concatMap)
 
 -- The types of our objects (before rendering), and the type of the resolution to render with.
 import Graphics.Implicit.Definitions (SymbolicObj2, SymbolicObj3, ℝ, Polyline, TriangleMesh, NormedTriangleMesh)
@@ -60,6 +60,11 @@ formatObject :: (DiscreteAproxable obj aprox)
     -> obj              -- ^ Object to render
     -> Text             -- ^ Resulting lazy ByteString
 formatObject res formatWriter = formatWriter . discreteAprox res
+
+writeSVGs :: forall obj. DiscreteAproxable obj [Polyline] => ℝ -> FilePath -> [obj] -> IO ()
+writeSVGs res filename objs =
+  let aproxes = PolylineFormats.svg$ concatMap (discreteAprox res) objs
+  in LT.writeFile filename aproxes
 
 writeSVG :: forall obj. DiscreteAproxable obj [Polyline] => ℝ -> FilePath -> obj -> IO ()
 writeSVG res = writeObject res PolylineFormats.svg

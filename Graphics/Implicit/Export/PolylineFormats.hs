@@ -26,7 +26,7 @@ svg :: [Polyline] -> Text
 svg plines = renderSvg . svg11 . svg' $ plines
     where
       strokeWidth :: ℝ
-      strokeWidth = 1
+      strokeWidth = 0.3
       (xmin, xmax, ymin, ymax) = (xmin' - margin, xmax' + margin, ymin' - margin, ymax' + margin)
            where margin = strokeWidth / 2
                  ((xmin', xmax'), (ymin', ymax')) = (maxMinList xs,maxMinList ys)
@@ -36,9 +36,9 @@ svg plines = renderSvg . svg11 . svg' $ plines
                  maxMinList (x:others) = foldl (\(l,h) y -> (min l y, max h y)) (x,x) others
                  maxMinList [] = (0,0)
       svg11 = docTypeSvg ! A.version "1.1"
-                         ! A.width  (stringValue $ show (xmax-xmin) ++ "mm")
-                         ! A.height (stringValue $ show (ymax-ymin) ++ "mm")
-                         ! A.viewbox (stringValue $ unwords . map show $ [0,0,xmax-xmin,ymax-ymin])
+                         ! A.width  (stringValue $ show (1000) ++ "mm")
+                         ! A.height (stringValue $ show (1000) ++ "mm")
+                         ! A.viewbox (stringValue $ unwords . map show $ [0,0,1000,1000])
 
       -- The reason this isn't totally straightforwards is that svg has different coordinate system
       -- and we need to compute the requisite translation.
@@ -48,10 +48,10 @@ svg plines = renderSvg . svg11 . svg' $ plines
       svg' polylines = thinBlueGroup $ mapM_ poly polylines
 
       poly (Polyline line) = polyline ! A.points pointList
-          where pointList = toValue $ toLazyText $ mconcat [bf (x-xmin) <> "," <> bf (ymax - y) <> " " | (x,y) <- line]
+          where pointList = toValue $ toLazyText $ mconcat [bf x <> "," <> bf y <> " " | (x,y) <- line]
 
       -- Instead of setting styles on every polyline, we wrap the lines in a group element and set the styles on it:
-      thinBlueGroup = g ! A.stroke "rgb(0,0,255)" ! A.strokeWidth (stringValue $ show strokeWidth) ! A.fill "none" -- obj
+      thinBlueGroup = g ! A.stroke "rgb(255,0,0)" ! A.strokeWidth (stringValue $ show strokeWidth) ! A.fill "none" -- obj
 
 -- | DXF2 export in 2D. conforming to AutoCAD R12/13.
 dxf2 :: [Polyline] -> Text

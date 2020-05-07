@@ -4,10 +4,10 @@
 
 module Graphics.Implicit.Export.Render.GetSegs (getSegs) where
 
-import Prelude(Bool(True, False), sqrt, (+), (*), (/=), map, (.), filter, ($), (<=))
+import Prelude(Bool(True, False), (+), (/=), filter, ($), (<=))
 
 import Graphics.Implicit.Definitions (ℝ, ℝ2, Obj2, Polyline(Polyline))
-import Graphics.Implicit.Export.Render.RefineSegs (refine)
+-- import Graphics.Implicit.Export.Render.RefineSegs (refine)
 import Graphics.Implicit.Export.Util (centroid)
 
 import Data.VectorSpace ((^-^))
@@ -63,7 +63,6 @@ getSegs p1@(x,y) p2 obj (x1y1, x2y1, x1y2, x2y2) (midx1V,midx2V,midy1V,midy2V) =
         c = obj (centroid [p1,p2])
 
         (dx,dy) = p2 ^-^ p1
-        res = sqrt (dx*dy)
 
         midx1 = (x,      midx1V)
         midx2 = (x + dx, midx2V)
@@ -77,8 +76,7 @@ getSegs p1@(x,y) p2 obj (x1y1, x2y1, x1y2, x2y2) (midx1V,midx2V,midy1V,midy2V) =
         -- takes straight lines between mid points and subdivides them to
         -- account for sharp corners, etc.
 
-    in map (refine res obj) . filter notPointLine $ case (x1y2 <= 0, x2y2 <= 0,
-                                                          x1y1 <= 0, x2y1 <= 0) of
+    in filter notPointLine $ case (x1y2 <= 0, x2y2 <= 0, x1y1 <= 0, x2y1 <= 0) of
 
         -- An important point here is orientation. If you imagine going along a
         -- generated segment, the interior should be on the left-hand side.
